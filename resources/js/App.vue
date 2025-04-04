@@ -1,5 +1,6 @@
+<script setup>
+    import InvoiceTable from "./components/InvoiceTable.vue";
+</script>
 <template>
-    <h2>
-        VueSchool Rocks! 🤘 
-    </h2>
+    <InvoiceTable></InvoiceTable>
 </template>

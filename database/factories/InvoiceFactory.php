@@ -17,7 +17,7 @@ class InvoiceFactory extends Factory
     public function definition(): array
     {
         return [
-            'number' => fake()->unique()->name(),
+            'number' => fake()->numerify('FS#/##'),
             'buyer_tin' => fake()->regexify('[0-9]{10}'),
             'seller_tin' => fake()->regexify('[0-9]{10}'),
             'product_code' => fake()->regexify('[A-Z]{3}'),
