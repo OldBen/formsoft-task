@@ -7,22 +7,66 @@
       :sortable="table.sortable"
       :messages="table.messages"
       @do-search="doSearch"
-      @is-finished="table.isLoading = false"
+      @is-finished="tableLoadingFinish"
+      @row-clicked="edit"
     ></table-lite>
+    <div style="float: right;"><button @click="create">Dodaj</button></div>
+    <InvoiceForm v-show="isFormVisible" v-bind:model="invoice" @close="close"></InvoiceForm>
   </template>
   
   <script>
-  import { defineComponent, reactive } from "vue";
+  import { defineComponent, reactive, onUpdated } from "vue";
   import TableLite from "vue3-table-lite";
+  import InvoiceForm from "./InvoiceForm.vue";
   import axios from "axios";
   // import VueTableLite from 'vue3-table-lite'
-
   
   export default defineComponent({
     name: "InvoiceTable",
-    components: { TableLite },
+    components: { TableLite, InvoiceForm },
+    methods: {
+      create() {
+        this.invoice = {
+          id: null,
+          number: null,
+          buyer_tin: null,
+          seller_tin: null,
+          product_code: null,
+          net_amount: null,
+          issue_date: null,
+          edit_date: null
+        },
+        this.isFormVisible = true;
+      },
+      close() {
+        this.isFormVisible = false;
+        this.refresh();
+      },
+      edit(row) {
+        this.invoice = self.tableData.find((element) => element.id == row.id);
+        this.isFormVisible = true;
+      },
+      refresh() {
+        this.getData();
+        this.doSearch(0, 10, 'number', 'asc');
+      }
+    },
+    data() {
+      return {
+        isFormVisible: false,
+        invoice: {
+          id: null,
+          number: null,
+          buyer_tin: null,
+          seller_tin: null,
+          product_code: null,
+          net_amount: null,
+          issue_date: null,
+          edit_date: null
+        },
+      };
+    },
     setup() {
-      // Table config
       const table = reactive({
         isLoading: false,
         columns: [
@@ -67,21 +111,6 @@
             width: "10%",
             sortable: true,
           },
-          {
-            label: "Funkcje",
-            field: "quick",
-            width: "10%",
-            display: function (row) {
-                return (
-                '<button type="button" data-id="' +
-                row.id +
-                '" class="is-rows-el quick-btn">Edytuj</button>&#9;&#9; ' +
-                '<button type="button" data-id="' +
-                row.id +
-                '" class="is-rows-el quick-btn">Usuń</button>'
-                );
-            },
-          },
         ],
         rows: [],
         totalRecordCount: 0,
@@ -103,13 +132,9 @@
             self.tableData = response.data;
           });
       };
-  
-      // First get data
+
       getData();
   
-      /**
-       * Search Event
-       */
       const doSearch = (offset, limit, order, sort) => {
         table.isLoading = true;
         setTimeout(() => {
@@ -117,8 +142,7 @@
             if (offset >= 10 || limit >= table.totalRecordCount) {
               limit = table.totalRecordCount;
             }
-            console.log(tableData);
-          tableData.sort(function(a,b) {
+            tableData.sort(function(a,b) {
             if (a[order] == b[order]) return 0;
               if (sort == 'asc') {    
                 if(a[order] > b[order]) return 1;
@@ -129,7 +153,6 @@
               }
             });
             
-            console.log(tableData);
           table.rows = tableData.slice(offset, limit);
           table.sortable.order = order;
           table.sortable.sort = sort;
@@ -138,12 +161,20 @@
       };
 
       doSearch(0, 10, "number", "asc");
+
+      const tableLoadingFinish = (elements) => {
+        table.isLoading = false;
+        
+      };
+
   
       return {
         table,
         getData,
         doSearch,
+        tableLoadingFinish,
       };
     },
+
   });
   </script>

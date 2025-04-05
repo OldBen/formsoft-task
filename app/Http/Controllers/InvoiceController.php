@@ -16,19 +16,11 @@ class InvoiceController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        //
+        Invoice::create($request->input());
     }
 
     /**
@@ -40,26 +32,20 @@ class InvoiceController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Invoice $invoice)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Invoice $invoice)
+    public function update(Request $request, string $id)
     {
-        //
+        Invoice::find($id)->update($request->input());
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Invoice $invoice)
+    public function destroy(string $id)
     {
-        //
+        $invoice = Invoice::find($id);
+        $invoice->delete();
+        return response()->noContent();
     }
 }
